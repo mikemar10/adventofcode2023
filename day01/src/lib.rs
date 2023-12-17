@@ -62,7 +62,7 @@ pub fn extract_number2(s: &str) -> u32 {
 /// ```
 pub fn extract_number3(s: &str) -> u32 {
     let mut numbers = s.chars().filter_map(|s| s.to_digit(10));
-    let first = numbers.nth(0);
+    let first = numbers.next();
     let last = numbers.last();
     match (first, last) {
         (Some(first), Some(last)) => (first * 10) + last,
@@ -126,12 +126,12 @@ pub fn extract_number4(s: &str) -> u32 {
 /// ```
 pub fn extract_number5(s: &str) -> u32 {
     let is_ascii_number = |b| if b < 58 && b > 47 { Some(b - 48) } else { None };
-    let first = s.bytes().filter_map(is_ascii_number).nth(0).unwrap_or(0);
+    let first = s.bytes().filter_map(is_ascii_number).next().unwrap_or(0);
     let last = s
         .bytes()
         .rev()
         .filter_map(is_ascii_number)
-        .nth(0)
+        .next()
         .unwrap_or(0);
     ((first * 10) + last) as u32
 }
@@ -150,9 +150,9 @@ pub fn extract_number5(s: &str) -> u32 {
 /// ```
 pub fn extract_number6(s: &str) -> u32 {
     let is_number = |c: char| c.to_digit(10);
-    let first = s.chars().filter_map(is_number).nth(0).unwrap_or(0);
-    let last = s.chars().rev().filter_map(is_number).nth(0).unwrap_or(0);
-    ((first * 10) + last) as u32
+    let first = s.chars().filter_map(is_number).next().unwrap_or(0);
+    let last = s.chars().rev().filter_map(is_number).next().unwrap_or(0);
+    (first * 10) + last
 }
 
 use regex::Regex;
@@ -172,8 +172,8 @@ pub fn extract_number_ex(s: &str) -> u32 {
     let s2 = s.chars().rev().collect::<String>();
     let mut captures_forward = re.captures_iter(s);
     let mut captures_backward = re2.captures_iter(&s2);
-    let first = captures_forward.nth(0).and_then(|c| c.name("digit"));
-    let last = captures_backward.nth(0).and_then(|c| c.name("digit"));
+    let first = captures_forward.next().and_then(|c| c.name("digit"));
+    let last = captures_backward.next().and_then(|c| c.name("digit"));
     match (first, last) {
         (Some(first_match), Some(last_match)) => {
             parse_number(first_match.as_str()) * 10 + parse_number(last_match.as_str())
