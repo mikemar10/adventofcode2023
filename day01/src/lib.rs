@@ -154,3 +154,49 @@ pub fn extract_number6(s: &str) -> u32 {
     let last = s.chars().rev().filter_map(is_number).nth(0).unwrap_or(0);
     ((first * 10) + last) as u32
 }
+
+use regex::Regex;
+/// Given a string s, returns a 2 digit number comprised of the first and last numbers in s
+///
+/// If s does not contain any numbers 0 will be returned
+/// If s contains a single number, it will be used as both digits
+/// A number is either a digit 0-9 or a string "one", "two", "three", etc.
+/// There is probably a better way to solve this but this is good enough
+///
+/// ```
+/// assert_eq!(day01::extract_number_ex("1twone"), 11);
+/// ```
+pub fn extract_number_ex(s: &str) -> u32 {
+    let re = Regex::new(r"(?<digit>[0-9]|one|two|three|four|five|six|seven|eight|nine)").unwrap();
+    let re2 = Regex::new(r"(?<digit>[0-9]|eno|owt|eerht|ruof|evif|xis|neves|thgie|enin)").unwrap();
+    let s2 = s.chars().rev().collect::<String>();
+    let mut captures_forward = re.captures_iter(s);
+    let mut captures_backward = re2.captures_iter(&s2);
+    let first = captures_forward.nth(0).and_then(|c| c.name("digit"));
+    let last = captures_backward.nth(0).and_then(|c| c.name("digit"));
+    match (first, last) {
+        (Some(first_match), Some(last_match)) => {
+            parse_number(first_match.as_str()) * 10 + parse_number(last_match.as_str())
+        }
+        (Some(first_match), None) => {
+            parse_number(first_match.as_str()) * 10 + parse_number(first_match.as_str())
+        }
+        _ => 0,
+    }
+}
+
+fn parse_number(s: &str) -> u32 {
+    match s {
+        "0" => 0,
+        "1" | "one" | "eno" => 1,
+        "2" | "two" | "owt" => 2,
+        "3" | "three" | "eerht" => 3,
+        "4" | "four" | "ruof" => 4,
+        "5" | "five" | "evif" => 5,
+        "6" | "six" | "xis" => 6,
+        "7" | "seven" | "neves" => 7,
+        "8" | "eight" | "thgie" => 8,
+        "9" | "nine" | "enin" => 9,
+        _ => 0,
+    }
+}

@@ -3,7 +3,7 @@ fn main() {
     let input = include_str!("../input.txt");
     let sum = input
         .split('\n')
-        .map(extract_number6)
+        .map(extract_number_ex)
         .reduce(|acc, e| acc + e)
         .expect("There should not be an input that triggers this");
     println!("Answer: {}", sum);

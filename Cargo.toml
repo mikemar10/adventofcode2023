@@ -4,3 +4,4 @@ members = ["day01"]
 
 [workspace.dependencies]
 anyhow = "1"
+regex = "1.10"
