@@ -71,12 +71,33 @@ impl Game {
         }
         true
     }
+
+    /// Given a game, finds the minimal set of cubes required to make the game possible, then return the product of the cubes as the power
+    pub fn find_minimal_cube_power(&self) -> usize {
+        let mut r = 0;
+        let mut g = 0;
+        let mut b = 0;
+
+        for draw in &self.draws {
+            if draw.r > r {
+                r = draw.r;
+            }
+            if draw.g > g {
+                g = draw.g;
+            }
+            if draw.b > b {
+                b = draw.b;
+            }
+        }
+        r * g * b
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    #[test]
     fn test_parse_game() {
         assert_eq!(
             Game::parse_game(
@@ -93,6 +114,7 @@ mod tests {
         );
     }
 
+    #[test]
     fn test_is_game_possible() {
         let r = 12;
         let g = 13;
@@ -107,10 +129,29 @@ mod tests {
             "Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red",
         );
         let game5 = Game::parse_game("Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green");
-        assert_eq!(game1.is_game_possible(r, g, b), true);
-        assert_eq!(game2.is_game_possible(r, g, b), true);
-        assert_eq!(game3.is_game_possible(r, g, b), false);
-        assert_eq!(game4.is_game_possible(r, g, b), false);
-        assert_eq!(game5.is_game_possible(r, g, b), true);
+        assert!(game1.is_game_possible(r, g, b));
+        assert!(game2.is_game_possible(r, g, b));
+        assert!(!game3.is_game_possible(r, g, b));
+        assert!(!game4.is_game_possible(r, g, b));
+        assert!(game5.is_game_possible(r, g, b));
+    }
+
+    #[test]
+    fn test_find_minimal_cube_power() {
+        let game1 = Game::parse_game("Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green");
+        let game2 =
+            Game::parse_game("Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue");
+        let game3 = Game::parse_game(
+            "Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red",
+        );
+        let game4 = Game::parse_game(
+            "Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red",
+        );
+        let game5 = Game::parse_game("Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green");
+        assert_eq!(game1.find_minimal_cube_power(), 48);
+        assert_eq!(game2.find_minimal_cube_power(), 12);
+        assert_eq!(game3.find_minimal_cube_power(), 1560);
+        assert_eq!(game4.find_minimal_cube_power(), 630);
+        assert_eq!(game5.find_minimal_cube_power(), 36);
     }
 }
