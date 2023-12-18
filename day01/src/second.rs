@@ -2,7 +2,7 @@ use day01::*;
 fn main() {
     let input = include_str!("../input.txt");
     let sum = input
-        .split('\n')
+        .lines()
         .map(extract_number_ex)
         .reduce(|acc, e| acc + e)
         .expect("There should not be an input that triggers this");
