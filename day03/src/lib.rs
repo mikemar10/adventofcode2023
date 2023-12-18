@@ -8,6 +8,10 @@ impl<'a> EngineSchematic<'a> {
         Self { rows }
     }
 
+    /// Parses through each row of data, returns a vector of numbers that are adjacent to symbols
+    ///
+    /// Symbols exclude the '.' character
+    /// Adjacency is considered in the 8 cardinal directions NW, N, NE, E, SE, S, SW, W
     pub fn find_engine_parts(&self) -> Vec<usize> {
         let mut results: Vec<usize> = vec![];
         let mut buffer = String::new();
@@ -20,8 +24,14 @@ impl<'a> EngineSchematic<'a> {
             let mut cols = curr_row.unwrap().char_indices().peekable();
             loop {
                 match (cols.next(), cols.peek()) {
+                    // When a numeric character is encountered, append it to the buffer and search for adjacent symbols
+                    // Symbols are defined as not the '.' character and not a numeric character
                     (Some((idx, chr)), _) if chr.is_numeric() => {
                         buffer.push(chr);
+                        // for the row above, the current row, and the next row
+                        // try to grab the characters at the indices -1, 0, 1 relative to the current char
+                        // this technically includes the character itself but that isn't a problem
+                        // other than an extra comparison that will always fail
                         let above = prev_row
                             .get_or_insert(&"")
                             .chars()
@@ -37,13 +47,16 @@ impl<'a> EngineSchematic<'a> {
                             .chars()
                             .skip(idx.saturating_sub(1))
                             .take(3);
+                        // Latch true a flag for an adjacent symbol found
                         symbol_adjacent = symbol_adjacent
                             || above
                                 .chain(around)
                                 .chain(below)
                                 .any(|dir| dir != '.' && !dir.is_numeric());
                     }
+                    // If the current character is non-numeric or non-existent (because we reached the end of the row)
                     (curr, next) => {
+                        // append to the buffer and reset number detection state
                         if symbol_adjacent {
                             if let Ok(n) = buffer.parse() {
                                 results.push(n)
@@ -51,6 +64,7 @@ impl<'a> EngineSchematic<'a> {
                         }
                         buffer.clear();
                         symbol_adjacent = false;
+                        // if we've completed the row by iterating off the end, break the loop
                         if (curr, next) == (None, None) {
                             break;
                         }
@@ -58,6 +72,7 @@ impl<'a> EngineSchematic<'a> {
                 }
             }
 
+            // shift down a row
             prev_row = curr_row;
             curr_row = next_row;
             next_row = rows.next();
